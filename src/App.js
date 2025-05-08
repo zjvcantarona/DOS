@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import Systemconfig from './Systemconfig.js';
+import Systemconfig from './Systemconfig'
+
 
 
 const Sidebar = ({ setPage }) => {
@@ -47,6 +48,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [users, setUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  
 
   useEffect(() => {
     const savedUsers = JSON.parse(localStorage.getItem('users')) || [];
@@ -298,8 +300,142 @@ function App() {
     );
   };
 
-  const Whitelist = () => (<div style={{ ...pageStyle, marginLeft: '260px' }}><h2>Whitelist Page</h2><p>This is the Whitelist content.</p></div>);
-  const Blacklist = () => (<div style={{ ...pageStyle, marginLeft: '260px' }}><h2>Blacklist Page</h2><p>This is the Blacklist content.</p></div>);
+  const Whitelist = () => {
+    const [whitelist, setWhitelist] = useState(() => {
+      return JSON.parse(localStorage.getItem('dosWhitelist')) || [];
+    });
+    const [ipInput, setIpInput] = useState('');
+  
+    const saveWhitelist = (list) => {
+      localStorage.setItem('dosWhitelist', JSON.stringify(list));
+      setWhitelist(list);
+    };
+  
+    const handleAddIp = () => {
+      const trimmed = ipInput.trim();
+      const ipRegex = /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/;
+  
+      if (!ipRegex.test(trimmed)) {
+        alert('Invalid IP address.');
+        return;
+      }
+      if (whitelist.includes(trimmed)) {
+        alert('IP already whitelisted.');
+        return;
+      }
+  
+      saveWhitelist([...whitelist, trimmed]);
+      setIpInput('');
+    };
+  
+    const handleRemoveIp = (ip) => {
+      const updatedList = whitelist.filter(item => item !== ip);
+      saveWhitelist(updatedList);
+    };
+  
+    return (
+      <div style={{ ...pageStyle, marginLeft: '260px' }}>
+        <h2>Whitelist Page</h2>
+  
+        <div style={cardStyle}>
+          <h3>Trusted IP Addresses</h3>
+  
+          <input
+            type="text"
+            value={ipInput}
+            onChange={e => setIpInput(e.target.value)}
+            placeholder="Enter IP address"
+            style={inputStyle}
+          />
+          <button onClick={handleAddIp} style={buttonStyle}>Add IP</button>
+  
+          <ul style={{ marginTop: 20 }}>
+            {whitelist.length === 0 && <p>No IPs whitelisted.</p>}
+            {whitelist.map(ip => (
+              <li key={ip} style={{ marginBottom: 10 }}>
+                {ip}
+                <button
+                  onClick={() => handleRemoveIp(ip)}
+                  style={{ ...buttonStyle, marginLeft: 10, backgroundColor: '#822' }}
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    );
+  };
+  
+  const Blacklist = () => {
+    const [blacklist, setBlacklist] = useState(() => {
+      return JSON.parse(localStorage.getItem('dosBlacklist')) || [];
+    });
+    const [ipInput, setIpInput] = useState('');
+  
+    const saveBlacklist = (list) => {
+      localStorage.setItem('dosBlacklist', JSON.stringify(list));
+      setBlacklist(list);
+    };
+  
+    const handleAddIp = () => {
+      const trimmed = ipInput.trim();
+      const ipRegex = /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/;
+  
+      if (!ipRegex.test(trimmed)) {
+        alert('Invalid IP address.');
+        return;
+      }
+      if (blacklist.includes(trimmed)) {
+        alert('IP already blacklisted.');
+        return;
+      }
+  
+      saveBlacklist([...blacklist, trimmed]);
+      setIpInput('');
+    };
+  
+    const handleRemoveIp = (ip) => {
+      const updatedList = blacklist.filter(item => item !== ip);
+      saveBlacklist(updatedList);
+    };
+  
+    return (
+      <div style={{ ...pageStyle, marginLeft: '260px' }}>
+        <h2>Blacklist Page</h2>
+  
+        <div style={cardStyle}>
+          <h3>Blocked IP Addresses</h3>
+  
+          <input
+            type="text"
+            value={ipInput}
+            onChange={e => setIpInput(e.target.value)}
+            placeholder="Enter IP address"
+            style={inputStyle}
+          />
+          <button onClick={handleAddIp} style={buttonStyle}>Add IP</button>
+  
+          <ul style={{ marginTop: 20 }}>
+            {blacklist.length === 0 && <p>No IPs blacklisted.</p>}
+            {blacklist.map(ip => (
+              <li key={ip} style={{ marginBottom: 10 }}>
+                {ip}
+                <button
+                  onClick={() => handleRemoveIp(ip)}
+                  style={{ ...buttonStyle, marginLeft: 10, backgroundColor: '#a00' }}
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    );
+  };
+  
   const SystemConfig = () => (<div style={{ ...pageStyle, marginLeft: '260px' }}><h2>SystemConfig Page</h2><p>This is the Sample1 content.</p></div>);
   const Admin = () => (<div style={{ ...pageStyle, marginLeft: '260px' }}><h2>Authorized Admin</h2><p>Admin</p></div>);
   
